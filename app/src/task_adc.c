@@ -49,26 +49,108 @@
 
 /********************** macros and definitions *******************************/
 
+#define SAMPLES_COUNTER (100)
+#define AVERAGER_SIZE (16)
 
 /********************** internal data declaration ****************************/
+uint32_t tickstart;
+uint16_t sample_idx;
 
-/********************** internal functions declaration ***********************/
+uint16_t sample_array[SAMPLES_COUNTER];
+bool b_trig_new_conversion;
 
+
+/********************** internal functions definitions ***********************/
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc);
+HAL_StatusTypeDef ADC_Poll_Read(uint16_t *value);
+bool test2_3_tick();
 /********************** internal data definition *****************************/
 const char *p_task_adc 		= "Task ADC";
 
 /********************** external data declaration *****************************/
+extern ADC_HandleTypeDef hadc1;
+
 
 /********************** external functions definition ************************/
+
 void task_adc_init(void *parameters)
 {
 	/* Print out: Task Initialized */
 	LOGGER_LOG("  %s is running - %s\r\n", GET_NAME(task_adc_init), p_task_adc);
-
+	HAL_NVIC_SetPriority(ADC1_2_IRQn, 2, 0);
+	HAL_NVIC_EnableIRQ(ADC1_2_IRQn);
+	sample_idx = 0;
+	tickstart = HAL_GetTick();
 }
 
 void task_adc_update(void *parameters)
 {
+	static bool b_test_done = false;
+	if (!b_test_done){
+		b_test_done = test2_3_tick()
+	}
 }
+
+
+bool test2_3_tick() {
+	uint32_t averaged = 0;
+	uint16_t value;
+	bool b_done = false;
+
+	// start of first conversion
+	if (0==sample_idx) {
+		b_trig_new_conversion = true;
+	}
+
+	if (sample_idx>=SAMPLES_COUNTER) {
+		b_done = true;
+		goto test2_tick_end;
+	}
+	if (b_trig_new_conversion) {
+		b_trig_new_conversion = false;
+		HAL_ADC_Start_IT(&hadc1);
+		for (uint16_t averager=0 ; averager<AVERAGER_SIZE ; averager++) {
+			//Activate the ADC peripheral and start conversions
+			if (HAL_OK==ADC_Poll_Read(&value)) {
+				averaged += value;
+			}
+		}
+	}
+	averaged = averaged / AVERAGER_SIZE;
+	LOGGER_LOG("%lu\n", averaged);
+
+	sample_idx++;
+test2_tick_end:
+	if (b_done) {
+		for (sample_idx=0;sample_idx<SAMPLES_COUNTER;sample_idx++) {
+			LOGGER_LOG("%u\n",sample_array[sample_idx] );
+		}
+	}
+	return b_done;
+
+}
+
+HAL_StatusTypeDef ADC_Poll_Read(uint16_t *value) {
+	HAL_StatusTypeDef res;
+
+	res=HAL_ADC_Start(&hadc1);
+	if ( HAL_OK==res ) {
+		res=HAL_ADC_PollForConversion(&hadc1, 0);
+		if ( HAL_OK==res ) {
+			*value = HAL_ADC_GetValue(&hadc1);
+		}
+	}
+	return res;
+}
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
+
+	sample_array[sample_idx++] = HAL_ADC_GetValue(&hadc1);
+	if (sample_idx<SAMPLES_COUNTER) {
+		b_trig_new_conversion = true;
+	}
+}
+
 
 /********************** end of file ******************************************/
