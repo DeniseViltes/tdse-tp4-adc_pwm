@@ -51,7 +51,12 @@
 
 /********************** internal data declaration ****************************/
 
-/********************** internal functions declaration ***********************/
+/********************** internal functions definition ***********************/
+void test2_tick();
+void setPWM(TIM_HandleTypeDef timer,
+            uint32_t channel,
+            uint16_t period,
+            uint16_t pulse);
 
 /********************** internal data definition *****************************/
 const char *p_task_pwm 		= "Task PWM";
@@ -68,7 +73,58 @@ void task_pwm_init(void *parameters)
 
 void task_pwm_update(void *parameters)
 {
-
+	test2_tick();
 }
+
+
+void test2_tick() {
+
+	static uint16_t period=PERIOD/4;
+	static bool first = true;
+	static uint32_t tick;
+	static int16_t step = STEP;
+
+	if (first) {
+		first = false;
+		tick = HAL_GetTick() + DELAY_TICKS;
+	}
+
+	if (HAL_GetTick()>=tick) {
+		setPWM(htim3, TIM_CHANNEL_1, period, period/2);
+		if (step>0) {
+			if (period-step>=PERIOD/2) {
+				step = step * -1;
+			}
+		}
+		else {
+			if (period-step<=PERIOD/4) {
+				step = step * -1;
+			}
+		}
+		period = period + step;
+		tick = HAL_GetTick() + DELAY_TICKS;
+	}
+}
+
+
+void setPWM(TIM_HandleTypeDef timer,
+            uint32_t channel,
+            uint16_t period,
+            uint16_t pulse) {
+  HAL_TIM_PWM_Stop(&timer, channel);
+  TIM_OC_InitTypeDef sConfigOC;
+  timer.Init.Period = period;
+  HAL_TIM_PWM_Init(&timer);
+
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = pulse;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  HAL_TIM_PWM_ConfigChannel(&timer, &sConfigOC, channel);
+
+  HAL_TIM_PWM_Start(&timer,channel);
+}
+
+
 
 /********************** end of file ******************************************/
