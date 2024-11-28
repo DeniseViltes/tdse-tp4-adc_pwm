@@ -46,28 +46,26 @@
 /* Application & Tasks includes. */
 #include "board.h"
 #include "app.h"
+#include "task_interface.h"
 
 /********************** macros and definitions *******************************/
 
-#define SAMPLES_COUNTER (100)
-#define AVERAGER_SIZE (16)
+#define SAMPLES_COUNTER (10)
 
 /********************** internal data declaration ****************************/
 uint32_t tickstart;
 uint16_t sample_idx;
-uint16_t buffer_idx;
 
 uint16_t sample_array[SAMPLES_COUNTER];
-uint16_t buffer[AVERAGER_SIZE];
 bool b_trig_new_conversion;
-
+uint16_t promedio(uint16_t sample_array[SAMPLES_COUNTER]);
 
 /********************** internal functions definitions ***********************/
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc);
 HAL_StatusTypeDef ADC_Poll_Read(uint16_t *value);
-bool test2_3_tick();
-uint32_t promedio();
+bool test3_tick();
+uint16_t obtener_lecturas(uint16_t *lecturas);
 /********************** internal data definition *****************************/
 const char *p_task_adc 		= "Task ADC";
 
@@ -91,65 +89,71 @@ void task_adc_update(void *parameters)
 {
 	static bool b_test_done = false;
 	if (!b_test_done){
-		b_test_done = test2_3_tick();
+		b_test_done = test3_tick();
 	}
 }
 
 
-bool test2_3_tick() {
+bool test3_tick() {
 
 	bool b_done = false;
 
-	// start of first conversion
+	if (sample_idx>=SAMPLES_COUNTER) {
+		b_done = true;
+		goto test3_tick_end;
+	}
+
+	/* start of first conversion */
 	if (0==sample_idx) {
 		b_trig_new_conversion = true;
 	}
 
-	if (sample_idx>=SAMPLES_COUNTER) {
-		b_done = true;
-		goto tick_end;
-	}
+
 	if (b_trig_new_conversion) {
 		b_trig_new_conversion = false;
 		HAL_ADC_Start_IT(&hadc1);
-
 	}
 
-
-	sample_idx++;
-tick_end:
+test3_tick_end:
 	if (b_done) {
-		for (sample_idx=0;sample_idx<SAMPLES_COUNTER;sample_idx++) {
+		/*for (sample_idx=0;sample_idx<SAMPLES_COUNTER;sample_idx++) {
 			LOGGER_LOG("%u\n",sample_array[sample_idx] );
-		}
+		}*/
+		uint16_t prom = promedio(sample_array);
+		cargar_valor_pote(prom);
 	}
 	return b_done;
-
 }
 
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
 
-	buffer[buffer_idx++] = HAL_ADC_GetValue(&hadc1);
-	if (sample_idx<SAMPLES_COUNTER){
-		if (buffer_idx<AVERAGER_SIZE) {
-			b_trig_new_conversion = true;
-		}
-		if (buffer_idx==AVERAGER_SIZE-1){
-			sample_array[sample_idx++] = promedio();
-			buffer_idx =0;
-		}
+	sample_array[sample_idx++] = HAL_ADC_GetValue(&hadc1);
+	if (sample_idx<SAMPLES_COUNTER) {
+		b_trig_new_conversion = true;
 	}
 }
 
 
-uint32_t promedio(){
-	uint32_t averaged = 0;
-	for(uint16_t averager=0 ; averager<AVERAGER_SIZE ; averager++){
-		averaged += buffer[averager];
+HAL_StatusTypeDef ADC_Poll_Read(uint16_t *value) {
+	HAL_StatusTypeDef res;
+
+	res=HAL_ADC_Start(&hadc1);
+	if ( HAL_OK==res ) {
+		res=HAL_ADC_PollForConversion(&hadc1, 0);
+		if ( HAL_OK==res ) {
+			*value = HAL_ADC_GetValue(&hadc1);
+		}
 	}
-	averaged = averaged / AVERAGER_SIZE;
-	return avaraged;
+	return res;
 }
 
+uint16_t promedio(uint16_t sample_array[SAMPLES_COUNTER]){
+	uint16_t averaged = 0;
+	for(uint16_t averager=0 ; averager<SAMPLES_COUNTER ; averager++){
+		averaged += sample_array[averager];
+	}
+	averaged = averaged / SAMPLES_COUNTER;
+	return averaged;
+}
 /********************** end of file ******************************************/

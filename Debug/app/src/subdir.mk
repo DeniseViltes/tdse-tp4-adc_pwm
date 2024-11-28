@@ -9,6 +9,7 @@ C_SRCS += \
 ../app/src/logger.c \
 ../app/src/task_adc.c \
 ../app/src/task_dummy.c \
+../app/src/task_interface.c \
 ../app/src/task_pwm.c 
 
 OBJS += \
@@ -16,6 +17,7 @@ OBJS += \
 ./app/src/logger.o \
 ./app/src/task_adc.o \
 ./app/src/task_dummy.o \
+./app/src/task_interface.o \
 ./app/src/task_pwm.o 
 
 C_DEPS += \
@@ -23,6 +25,7 @@ C_DEPS += \
 ./app/src/logger.d \
 ./app/src/task_adc.d \
 ./app/src/task_dummy.d \
+./app/src/task_interface.d \
 ./app/src/task_pwm.d 
 
 
@@ -33,7 +36,7 @@ app/src/%.o app/src/%.su app/src/%.cyclo: ../app/src/%.c app/src/subdir.mk
 clean: clean-app-2f-src
 
 clean-app-2f-src:
-	-$(RM) ./app/src/app.cyclo ./app/src/app.d ./app/src/app.o ./app/src/app.su ./app/src/logger.cyclo ./app/src/logger.d ./app/src/logger.o ./app/src/logger.su ./app/src/task_adc.cyclo ./app/src/task_adc.d ./app/src/task_adc.o ./app/src/task_adc.su ./app/src/task_dummy.cyclo ./app/src/task_dummy.d ./app/src/task_dummy.o ./app/src/task_dummy.su ./app/src/task_pwm.cyclo ./app/src/task_pwm.d ./app/src/task_pwm.o ./app/src/task_pwm.su
+	-$(RM) ./app/src/app.cyclo ./app/src/app.d ./app/src/app.o ./app/src/app.su ./app/src/logger.cyclo ./app/src/logger.d ./app/src/logger.o ./app/src/logger.su ./app/src/task_adc.cyclo ./app/src/task_adc.d ./app/src/task_adc.o ./app/src/task_adc.su ./app/src/task_dummy.cyclo ./app/src/task_dummy.d ./app/src/task_dummy.o ./app/src/task_dummy.su ./app/src/task_interface.cyclo ./app/src/task_interface.d ./app/src/task_interface.o ./app/src/task_interface.su ./app/src/task_pwm.cyclo ./app/src/task_pwm.d ./app/src/task_pwm.o ./app/src/task_pwm.su
 
 .PHONY: clean-app-2f-src
 

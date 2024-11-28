@@ -61,8 +61,8 @@ all: main-build
 main-build: tdse-tp4-adc_pwm.elf secondary-outputs
 
 # Tool invocations
-tdse-tp4-adc_pwm.elf tdse-tp4-adc_pwm.map: $(OBJS) $(USER_OBJS) C:\Users\G\STM32CubeIDE\workspace_1.16.0\tdse-tp4-adc_pwm\STM32F103RBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "tdse-tp4-adc_pwm.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\G\STM32CubeIDE\workspace_1.16.0\tdse-tp4-adc_pwm\STM32F103RBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="tdse-tp4-adc_pwm.map" -Wl,--gc-sections -static -specs=rdimon.specs --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+tdse-tp4-adc_pwm.elf tdse-tp4-adc_pwm.map: $(OBJS) $(USER_OBJS) C:\Users\---\Desktop\Embebidos\tdse-tp4-adc_pwm\STM32F103RBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "tdse-tp4-adc_pwm.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\---\Desktop\Embebidos\tdse-tp4-adc_pwm\STM32F103RBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="tdse-tp4-adc_pwm.map" -Wl,--gc-sections -static -specs=rdimon.specs --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

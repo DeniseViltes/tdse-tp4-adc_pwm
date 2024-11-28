@@ -1,0 +1,3 @@
+../app/src/task_interface.c:17:6:init_valor_pote	4	static
+../app/src/task_interface.c:23:6:cargar_valor_pote	16	static
+../app/src/task_interface.c:31:10:get_valor_pote	4	static

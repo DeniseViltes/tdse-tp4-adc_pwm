@@ -46,13 +46,18 @@
 /* Application & Tasks includes. */
 #include "board.h"
 #include "app.h"
+#include "task_interface.h"
 
 /********************** macros and definitions *******************************/
-
+#define DELAY_TICKS (4)
+#define STEP (100)
+#define PERIOD (65535)
+#define MAX_POTE (1024)
 /********************** internal data declaration ****************************/
 
+
 /********************** internal functions definition ***********************/
-void test2_tick();
+void test_tick();
 void setPWM(TIM_HandleTypeDef timer,
             uint32_t channel,
             uint16_t period,
@@ -62,7 +67,7 @@ void setPWM(TIM_HandleTypeDef timer,
 const char *p_task_pwm 		= "Task PWM";
 
 /********************** external data declaration *****************************/
-
+extern TIM_HandleTypeDef htim3;
 
 /********************** external functions definition ************************/
 void task_pwm_init(void *parameters)
@@ -73,13 +78,14 @@ void task_pwm_init(void *parameters)
 
 void task_pwm_update(void *parameters)
 {
-	test2_tick();
+	test_tick();
 }
 
 
-void test2_tick() {
+void test_tick() {
 
-	static uint16_t period=PERIOD/4;
+	static uint16_t active = 0;
+	static uint16_t period=PERIOD;
 	static bool first = true;
 	static uint32_t tick;
 	static int16_t step = STEP;
@@ -88,23 +94,10 @@ void test2_tick() {
 		first = false;
 		tick = HAL_GetTick() + DELAY_TICKS;
 	}
-
-	if (HAL_GetTick()>=tick) {
-		setPWM(htim3, TIM_CHANNEL_1, period, period/2);
-		if (step>0) {
-			if (period-step>=PERIOD/2) {
-				step = step * -1;
-			}
-		}
-		else {
-			if (period-step<=PERIOD/4) {
-				step = step * -1;
-			}
-		}
-		period = period + step;
-		tick = HAL_GetTick() + DELAY_TICKS;
-	}
+	active = PERIOD - get_valor_pote() *PERIOD/MAX_POTE;
+	setPWM(htim3, TIM_CHANNEL_1, period, active);
 }
+
 
 
 void setPWM(TIM_HandleTypeDef timer,
@@ -124,6 +117,7 @@ void setPWM(TIM_HandleTypeDef timer,
 
   HAL_TIM_PWM_Start(&timer,channel);
 }
+
 
 
 

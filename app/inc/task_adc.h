@@ -56,6 +56,7 @@ extern uint32_t g_task_a_cnt;
 void task_adc_init(void *parameters);
 void task_adc_update(void *parameters);
 
+
 /********************** End of CPP guard *************************************/
 #ifdef __cplusplus
 }

@@ -1,0 +1,2 @@
+../app/src/task_dummy.c:63:6:task_dummy_init	24	static,ignoring_inline_asm
+../app/src/task_dummy.c:70:6:task_dummy_update	16	static
