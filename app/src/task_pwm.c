@@ -55,7 +55,6 @@
 #define MAX_POTE (1024)
 /********************** internal data declaration ****************************/
 
-
 /********************** internal functions definition ***********************/
 void test_tick();
 void setPWM(TIM_HandleTypeDef timer,
@@ -94,8 +93,10 @@ void test_tick() {
 		first = false;
 		tick = HAL_GetTick() + DELAY_TICKS;
 	}
-	active = PERIOD - get_valor_pote() *PERIOD/MAX_POTE;
-	setPWM(htim3, TIM_CHANNEL_1, period, active);
+	else{
+		active = PERIOD - get_valor_pote() *PERIOD/MAX_POTE;
+		setPWM(htim3, TIM_CHANNEL_1, period, active);
+	}
 }
 
 

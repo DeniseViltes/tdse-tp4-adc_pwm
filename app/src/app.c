@@ -413,6 +413,8 @@ void app_update(void)
 			 * the function.
 			 * We use the function name and parameters in the function call.
 			 */
+
+
 			/* Run task_x_update */
 			(*task_cfg_list[index].task_update)(task_cfg_list[index].parameters);
 
