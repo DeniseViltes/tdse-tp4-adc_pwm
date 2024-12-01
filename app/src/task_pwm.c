@@ -52,7 +52,7 @@
 #define DELAY_TICKS (4)
 #define STEP (100)
 #define PERIOD (65535)
-#define MAX_POTE (1024)
+#define MAX_POTE (4095)
 /********************** internal data declaration ****************************/
 
 /********************** internal functions definition ***********************/

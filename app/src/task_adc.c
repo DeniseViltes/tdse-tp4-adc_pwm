@@ -166,8 +166,8 @@ uint16_t promedio(uint16_t sample_array[SAMPLES_COUNTER]){
 }
 
 
-void ADC_IRQHandler(void)
+/*void ADC_IRQHandler(void)
 {
     HAL_ADC_IRQHandler(&hadc1);
-}
+}*/
 /********************** end of file ******************************************/
