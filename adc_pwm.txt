@@ -1,0 +1,9 @@
+Para implementar el código del adc, se utiliza principalmente el test 3, es decir que se utilizan interrupciones, ya que buscamos utilizar código no bloqueante, y este es el test más eficiente de los tres. Para reducir el ruido de la medición, se utiliza el promedido del test 2. 
+
+Luego para el caso del pwm, el perido queda fijo, y varía el valor del tiempo de encendido, por lo que nos basamos en el test 1.
+
+Para interactuar entre ambos task (adc y pwm) armamos un task interface, para lograr pasar el valor promedio leido con el adc al pwm, con el cual se determinla resará el tiempo de encendido.
+
+El resultado se observa en la carpeta RESULTADOS, donde se observa como el LED varía su intensidad de brillo al variar el potenciometro.
+
+Se utiliza la misma conexión entre pines que en los test correspondientes.
