@@ -1,9 +1,53 @@
-Para implementar el código del adc, se utiliza principalmente el test 3, es decir que se utilizan interrupciones, ya que buscamos utilizar código no bloqueante, y este es el test más eficiente de los tres. Para reducir el ruido de la medición, se utiliza el promedido del test 2. 
+Proceso:
 
-Luego para el caso del pwm, el perido queda fijo, y varía el valor del tiempo de encendido, por lo que nos basamos en el test 1.
+1° : "Configuracion de pines GPIO " 
 
-Para interactuar entre ambos task (adc y pwm) armamos un task interface, para lograr pasar el valor promedio leido con el adc al pwm, con el cual se determinla resará el tiempo de encendido.
+Nos enfocamos en asignar y editar todos los puertos y periféricos necesarios para 
+recibir una señal analógica, como tambien una salida digital de un timer, para poder 
+tener la lectura de tensión del potenciómetro y con ella controlar el duty del pulso cuadrado 
+a la salida del timer PWM.
 
-El resultado se observa en la carpeta RESULTADOS, donde se observa como el LED varía su intensidad de brillo al variar el potenciometro.
+	> el pin PA0 fue seleccionado como ADC1, configurado para que haga solo una conversión de un solo puerto.
+	Es decir está configurado en el modo "single-channel--Single-conversion" (1). Es por ello que estan como 
+	disable ScanConvMode ;ContinuousConvMode ; DiscontinuousConvMode .
+	
+	> El pin PA6 fue elegido para ser el timer, seleccionando el TIM3_CH1. Para formalizar que el GPIO sera un 
+	timer en modo PWM, en la configuración de pines input y output, en la sección de timers se puso al Channel 1
+	como un generador de PWM. Luego en el archivo main.c puede verse el resto de la configuración pero decidimos 
+	respetar la que viene por default porque servia para los propositos nuestros.
+	
+	> El software de STM32 se encargo de generar todo el codigo correspondiente a las configuraciónes mencionadas.
+	
+2° : "Codigo ADC"
 
-Se utiliza la misma conexión entre pines que en los test correspondientes.
+Haciendo uso de la práctica y análisis del trabajo con un ADC en el módulo anterior de este trabajo, comprendimos 
+segun el fin de controlar una señal pwm en todo instante, que debiamos utilizar un algoritmo para realizar la conversión
+de analógico a digital, debia ser no bloqueante, manejado por interrupciones. Es por ello que se optó por seguir el modelo del "test 3",
+con el agregado de una función que calcula el promedio entre los valores obtenidos de 10 valores analógicos convertidos.
+Este valor promediado es luego guardado en una estructura.
+
+Se realizo un archivo task_interface.H y task_interface.c para crear funciones que permitan guardar en la estructura el valor promediado
+que se obtuvo por la conversión. "cargar_balor_pote"
+
+3° : "Codigo PWM"
+
+Siguiendo la modalidad de realizar una acción al recibir un evento, como se trató en trabajos prácticos anteriores, por lo tanto, 
+el valor del pwm se modificará si hubo algun cambio y luego será levantado por el algoritmo del pwm con "get_valor_pote".
+El objetivo es controlar el duty de la pwm para que la tensión efectiva que cae por el diodo varie y se vea el efecto de 
+dimerizar el brillo del diodo.
+Para controlar el duty, se modifica el valor de "pulse" en las caracteristicas del timer. Este parametro tiene inferencia sobre los registros Crr con el ARR.
+Pulse = ((Period + 1) * DutyCicle) / 100 – 1 --> asi esta definido, si el Periodo se mantiene constante, lo que varia es el duty.
+
+Para escalar los valores de lo medido con el potenciómetro. active = PERIOD - get_valor_pote() *PERIOD/MAX_POTE; 
+Identificamos el valor maximo que puede mapear el nucleo es de 0 a 4095.
+
+
+4° : "Demostración"
+
+	En la carpeta de resultados puede verse un video de demostración de como dimeriza el led al girar el potenciometro.
+
+
+Referencias y bibliografia.
+
+	1. STM32: ADC modes and applications (https://www.st.com/resource/en/application_note/an3116-stm32s-adc-modes-and-their-applications-stmicroelectronics.pdf)
+	
