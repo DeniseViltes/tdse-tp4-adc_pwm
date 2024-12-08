@@ -27,7 +27,7 @@ con el agregado de una función que calcula el promedio entre los valores obteni
 Este valor promediado es luego guardado en una estructura.
 
 Se realizo un archivo task_interface.H y task_interface.c para crear funciones que permitan guardar en la estructura el valor promediado
-que se obtuvo por la conversión. "cargar_balor_pote"
+que se obtuvo por la conversión. "cargar_valor_pote"
 
 3° : "Codigo PWM"
 
